@@ -1,0 +1,1299 @@
+<!DOCTYPE html>
+<html lang="cs">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Lumière Beauty Salon</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;0,600;1,300;1,400;1,500&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet" />
+  <style>
+    /* ─── Design Tokens ─────────────────────────────────────────── */
+    :root {
+      --brand-rose:   #C9848A;
+      --brand-rose-d: #b56e74;
+      --blush-cream:  #F5EDE9;
+      --ivory:        #FBF8F6;
+      --warm-gold:    #BFA070;
+      --mauve:        #9B7387;
+      --charcoal:     #2A2020;
+      --warm-gray:    #7A6E6E;
+      --petal:        #EDD8D4;
+      --white:        #FFFFFF;
+
+      --font-display: 'Cormorant Garamond', Georgia, serif;
+      --font-body:    'DM Sans', system-ui, sans-serif;
+
+      --shadow-1: 0 2px 12px rgba(42,32,32,.07);
+      --shadow-2: 0 8px 32px rgba(42,32,32,.13);
+      --radius-card: 16px;
+      --radius-pill: 50px;
+      --radius-img:  12px;
+
+      --section-py: 96px;
+      --max-w:      1200px;
+    }
+
+    /* ─── Reset ──────────────────────────────────────────────────── */
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    html { scroll-behavior: smooth; }
+    body {
+      font-family: var(--font-body);
+      background: var(--ivory);
+      color: var(--charcoal);
+      line-height: 1.6;
+      overflow-x: hidden;
+    }
+    img { display: block; width: 100%; object-fit: cover; }
+    a { text-decoration: none; color: inherit; }
+    ul { list-style: none; }
+
+    /* ─── Animations (21st-dev-inspired: fade-up + blur) ──────── */
+    @keyframes fadeUpBlur {
+      from { opacity: 0; filter: blur(8px); transform: translateY(20px); }
+      to   { opacity: 1; filter: blur(0);   transform: translateY(0); }
+    }
+    @keyframes fadeInRight {
+      from { opacity: 0; transform: translateX(40px); }
+      to   { opacity: 1; transform: translateX(0); }
+    }
+    @keyframes pulseRing {
+      0%   { box-shadow: 0 0 0 0 rgba(201,132,138,.55); }
+      70%  { box-shadow: 0 0 0 14px rgba(201,132,138,0); }
+      100% { box-shadow: 0 0 0 0 rgba(201,132,138,0); }
+    }
+    @keyframes shimmer {
+      0%   { background-position: -200% center; }
+      100% { background-position:  200% center; }
+    }
+
+    /* Scroll-reveal: hidden state */
+    .reveal {
+      opacity: 0;
+      transform: translateY(24px);
+      filter: blur(6px);
+      transition: opacity .7s cubic-bezier(.16,1,.3,1),
+                  transform .7s cubic-bezier(.16,1,.3,1),
+                  filter .7s cubic-bezier(.16,1,.3,1);
+    }
+    .reveal.visible {
+      opacity: 1;
+      transform: translateY(0);
+      filter: blur(0);
+    }
+    .reveal-right {
+      opacity: 0;
+      transform: translateX(40px);
+      transition: opacity .8s cubic-bezier(.16,1,.3,1),
+                  transform .8s cubic-bezier(.16,1,.3,1);
+    }
+    .reveal-right.visible { opacity: 1; transform: translateX(0); }
+
+    /* Stagger delays */
+    .delay-1 { transition-delay: .1s; }
+    .delay-2 { transition-delay: .2s; }
+    .delay-3 { transition-delay: .3s; }
+    .delay-4 { transition-delay: .4s; }
+    .delay-5 { transition-delay: .5s; }
+
+    /* Hero inline animations (no scroll needed) */
+    .hero-animate { animation: fadeUpBlur .9s cubic-bezier(.16,1,.3,1) both; }
+    .hero-img-animate { animation: fadeInRight 1s cubic-bezier(.16,1,.3,1) .3s both; }
+
+    /* ─── Buttons ────────────────────────────────────────────────── */
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 14px 32px;
+      border-radius: var(--radius-pill);
+      font-family: var(--font-body);
+      font-size: 15px;
+      font-weight: 500;
+      cursor: pointer;
+      transition: transform .2s ease, box-shadow .2s ease, background .2s ease;
+      border: none;
+    }
+    .btn:hover { transform: translateY(-2px); }
+    .btn-primary {
+      background: var(--brand-rose);
+      color: var(--white);
+      box-shadow: 0 4px 20px rgba(201,132,138,.35);
+    }
+    .btn-primary:hover {
+      background: var(--brand-rose-d);
+      box-shadow: 0 6px 28px rgba(201,132,138,.45);
+    }
+    .btn-outline {
+      background: transparent;
+      color: var(--brand-rose);
+      border: 1.5px solid var(--brand-rose);
+    }
+    .btn-outline:hover { background: rgba(201,132,138,.06); }
+    .btn-outline-light {
+      background: transparent;
+      color: var(--white);
+      border: 1.5px solid rgba(255,255,255,.65);
+    }
+    .btn-outline-light:hover { background: rgba(255,255,255,.12); }
+    .btn-pulse { animation: pulseRing 2s ease-in-out infinite; }
+
+    /* ─── Container ──────────────────────────────────────────────── */
+    .container {
+      max-width: var(--max-w);
+      margin: 0 auto;
+      padding: 0 32px;
+    }
+
+    /* ─── Section Header ─────────────────────────────────────────── */
+    .section-label {
+      display: block;
+      font-family: var(--font-body);
+      font-size: 12px;
+      font-weight: 600;
+      letter-spacing: .18em;
+      text-transform: uppercase;
+      color: var(--warm-gold);
+      margin-bottom: 12px;
+    }
+    .section-title {
+      font-family: var(--font-display);
+      font-size: clamp(34px, 4vw, 48px);
+      font-weight: 400;
+      line-height: 1.2;
+      color: var(--charcoal);
+    }
+    .section-desc {
+      font-size: 16px;
+      color: var(--warm-gray);
+      max-width: 520px;
+      margin-top: 16px;
+      line-height: 1.7;
+    }
+    .section-header-centered {
+      text-align: center;
+    }
+    .section-header-centered .section-desc {
+      margin-left: auto;
+      margin-right: auto;
+    }
+    .gold-divider {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 12px;
+      margin-bottom: 20px;
+    }
+    .gold-divider::before,
+    .gold-divider::after {
+      content: '';
+      display: block;
+      width: 48px;
+      height: 1px;
+      background: var(--warm-gold);
+    }
+    .gold-divider-icon {
+      font-size: 18px;
+      color: var(--warm-gold);
+      line-height: 1;
+    }
+
+    /* ═══════════════════════════════════════════════════════════════
+       NAV
+    ═══════════════════════════════════════════════════════════════ */
+    .nav {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      z-index: 100;
+      transition: background .35s ease, box-shadow .35s ease, backdrop-filter .35s ease;
+    }
+    .nav.scrolled {
+      background: rgba(251,248,246,.85);
+      backdrop-filter: blur(20px);
+      -webkit-backdrop-filter: blur(20px);
+      box-shadow: 0 1px 24px rgba(42,32,32,.08);
+    }
+    .nav-inner {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 22px 32px;
+      max-width: var(--max-w);
+      margin: 0 auto;
+    }
+    .nav-logo {
+      font-family: var(--font-display);
+      font-size: 26px;
+      font-weight: 400;
+      letter-spacing: .04em;
+      color: var(--charcoal);
+    }
+    .nav-logo span {
+      color: var(--brand-rose);
+    }
+    .nav-links {
+      display: flex;
+      gap: 36px;
+    }
+    .nav-links a {
+      font-size: 14px;
+      font-weight: 500;
+      color: var(--warm-gray);
+      letter-spacing: .02em;
+      transition: color .2s ease;
+      position: relative;
+    }
+    .nav-links a::after {
+      content: '';
+      position: absolute;
+      bottom: -3px;
+      left: 0;
+      width: 0;
+      height: 1px;
+      background: var(--brand-rose);
+      transition: width .25s ease;
+    }
+    .nav-links a:hover { color: var(--charcoal); }
+    .nav-links a:hover::after { width: 100%; }
+
+    /* ═══════════════════════════════════════════════════════════════
+       HERO
+    ═══════════════════════════════════════════════════════════════ */
+    .hero {
+      min-height: 100vh;
+      display: grid;
+      grid-template-columns: 55fr 45fr;
+      align-items: center;
+      padding-top: 90px;
+      background: var(--ivory);
+      overflow: hidden;
+    }
+    .hero-content {
+      padding: 80px 48px 80px 32px;
+      max-width: 620px;
+    }
+    .hero-tag {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      background: var(--blush-cream);
+      border: 1px solid var(--petal);
+      border-radius: var(--radius-pill);
+      padding: 6px 16px;
+      font-size: 13px;
+      color: var(--warm-gray);
+      margin-bottom: 28px;
+      animation: fadeUpBlur .6s ease both;
+    }
+    .hero-tag-dot {
+      width: 7px;
+      height: 7px;
+      border-radius: 50%;
+      background: var(--brand-rose);
+      display: inline-block;
+    }
+    .hero-headline {
+      font-family: var(--font-display);
+      font-size: clamp(48px, 5.5vw, 72px);
+      font-weight: 300;
+      font-style: italic;
+      line-height: 1.1;
+      color: var(--charcoal);
+      margin-bottom: 24px;
+      animation: fadeUpBlur .8s ease .1s both;
+    }
+    .hero-headline em {
+      font-style: normal;
+      color: var(--brand-rose);
+    }
+    .hero-sub {
+      font-size: 17px;
+      color: var(--warm-gray);
+      line-height: 1.7;
+      max-width: 480px;
+      margin-bottom: 40px;
+      animation: fadeUpBlur .8s ease .22s both;
+    }
+    .hero-actions {
+      display: flex;
+      gap: 16px;
+      flex-wrap: wrap;
+      animation: fadeUpBlur .8s ease .34s both;
+    }
+    .hero-image-wrap {
+      height: 100vh;
+      position: relative;
+      overflow: hidden;
+    }
+    .hero-image-wrap img {
+      height: 100%;
+      object-position: center top;
+      transition: transform 8s ease;
+    }
+    .hero-image-wrap::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(135deg, rgba(245,237,233,.35) 0%, transparent 60%);
+      z-index: 1;
+    }
+    .hero-image-badge {
+      position: absolute;
+      bottom: 40px;
+      left: -20px;
+      background: var(--white);
+      border-radius: var(--radius-card);
+      padding: 18px 22px;
+      box-shadow: var(--shadow-2);
+      z-index: 2;
+      animation: fadeUpBlur 1s ease .6s both;
+    }
+    .hero-image-badge .badge-number {
+      font-family: var(--font-display);
+      font-size: 32px;
+      font-weight: 500;
+      color: var(--charcoal);
+      line-height: 1;
+    }
+    .hero-image-badge .badge-label {
+      font-size: 12px;
+      color: var(--warm-gray);
+      margin-top: 4px;
+    }
+    .hero-scroll-hint {
+      position: absolute;
+      bottom: 36px;
+      left: 50%;
+      transform: translateX(-50%);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 8px;
+      animation: fadeUpBlur 1s ease 1s both;
+    }
+    .scroll-line {
+      width: 1px;
+      height: 40px;
+      background: linear-gradient(to bottom, var(--warm-gold), transparent);
+      animation: scrollLine 1.8s ease-in-out infinite;
+    }
+    @keyframes scrollLine {
+      0%   { transform: scaleY(0); transform-origin: top; }
+      50%  { transform: scaleY(1); transform-origin: top; }
+      51%  { transform: scaleY(1); transform-origin: bottom; }
+      100% { transform: scaleY(0); transform-origin: bottom; }
+    }
+    .scroll-label {
+      font-size: 11px;
+      letter-spacing: .14em;
+      text-transform: uppercase;
+      color: var(--warm-gray);
+    }
+
+    /* ═══════════════════════════════════════════════════════════════
+       TRUST STRIP
+    ═══════════════════════════════════════════════════════════════ */
+    .trust {
+      background: var(--charcoal);
+      padding: 48px 0;
+    }
+    .trust-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      max-width: var(--max-w);
+      margin: 0 auto;
+      padding: 0 32px;
+    }
+    .trust-item {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      text-align: center;
+      padding: 0 32px;
+    }
+    .trust-item + .trust-item {
+      border-left: 1px solid rgba(237,216,212,.2);
+    }
+    .trust-number {
+      font-family: var(--font-display);
+      font-size: 48px;
+      font-weight: 400;
+      color: var(--white);
+      line-height: 1;
+      margin-bottom: 8px;
+    }
+    .trust-number span {
+      color: var(--brand-rose);
+    }
+    .trust-label {
+      font-size: 13px;
+      color: rgba(255,255,255,.55);
+      letter-spacing: .06em;
+    }
+
+    /* ═══════════════════════════════════════════════════════════════
+       SERVICES
+    ═══════════════════════════════════════════════════════════════ */
+    .services {
+      padding: var(--section-py) 0;
+      background: var(--ivory);
+    }
+    .services-header {
+      margin-bottom: 56px;
+    }
+    .services-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 28px;
+    }
+    .service-card {
+      background: var(--white);
+      border-radius: var(--radius-card);
+      overflow: hidden;
+      box-shadow: var(--shadow-1);
+      transition: transform .3s cubic-bezier(.16,1,.3,1),
+                  box-shadow .3s cubic-bezier(.16,1,.3,1);
+      cursor: pointer;
+    }
+    .service-card:hover {
+      transform: translateY(-6px);
+      box-shadow: var(--shadow-2);
+    }
+    .service-card:hover .card-img img {
+      transform: scale(1.05);
+    }
+    .card-img {
+      height: 240px;
+      overflow: hidden;
+    }
+    .card-img img {
+      height: 100%;
+      transition: transform .6s cubic-bezier(.16,1,.3,1);
+    }
+    .card-body {
+      padding: 28px 28px 32px;
+    }
+    .card-tag {
+      display: inline-block;
+      font-size: 11px;
+      font-weight: 600;
+      letter-spacing: .12em;
+      text-transform: uppercase;
+      color: var(--brand-rose);
+      background: rgba(201,132,138,.1);
+      padding: 5px 14px;
+      border-radius: var(--radius-pill);
+      margin-bottom: 14px;
+    }
+    .card-title {
+      font-family: var(--font-display);
+      font-size: 26px;
+      font-weight: 500;
+      color: var(--charcoal);
+      margin-bottom: 10px;
+      line-height: 1.25;
+    }
+    .card-desc {
+      font-size: 14px;
+      color: var(--warm-gray);
+      line-height: 1.65;
+      margin-bottom: 20px;
+    }
+    .card-footer {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+    .card-price {
+      font-family: var(--font-display);
+      font-size: 22px;
+      font-weight: 500;
+      color: var(--charcoal);
+    }
+    .card-price small {
+      font-family: var(--font-body);
+      font-size: 12px;
+      color: var(--warm-gray);
+      font-weight: 400;
+      display: block;
+      margin-bottom: 2px;
+    }
+    .card-link {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 13px;
+      font-weight: 600;
+      color: var(--brand-rose);
+      letter-spacing: .04em;
+      transition: gap .2s ease;
+    }
+    .card-link:hover { gap: 10px; }
+
+    /* ═══════════════════════════════════════════════════════════════
+       ABOUT
+    ═══════════════════════════════════════════════════════════════ */
+    .about {
+      padding: var(--section-py) 0;
+      background: var(--blush-cream);
+    }
+    .about-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 80px;
+      align-items: center;
+    }
+    .about-img-wrap {
+      position: relative;
+    }
+    .about-img-wrap img {
+      border-radius: var(--radius-card);
+      height: 580px;
+      box-shadow: var(--shadow-2);
+    }
+    .about-badge {
+      position: absolute;
+      bottom: -24px;
+      right: -24px;
+      background: var(--white);
+      border-radius: var(--radius-card);
+      padding: 22px 26px;
+      box-shadow: var(--shadow-2);
+      text-align: center;
+    }
+    .about-badge .big { font-family: var(--font-display); font-size: 42px; font-weight: 500; color: var(--brand-rose); line-height: 1; }
+    .about-badge .small { font-size: 12px; color: var(--warm-gray); margin-top: 6px; }
+    .about-values {
+      display: flex;
+      flex-direction: column;
+      gap: 22px;
+      margin: 32px 0 36px;
+    }
+    .value-row {
+      display: flex;
+      align-items: flex-start;
+      gap: 16px;
+    }
+    .value-icon {
+      width: 42px;
+      height: 42px;
+      border-radius: 12px;
+      background: rgba(201,132,138,.12);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 18px;
+      flex-shrink: 0;
+    }
+    .value-text strong {
+      display: block;
+      font-size: 15px;
+      font-weight: 600;
+      color: var(--charcoal);
+      margin-bottom: 3px;
+    }
+    .value-text span {
+      font-size: 13px;
+      color: var(--warm-gray);
+      line-height: 1.5;
+    }
+
+    /* ═══════════════════════════════════════════════════════════════
+       TESTIMONIALS
+    ═══════════════════════════════════════════════════════════════ */
+    .testimonials {
+      padding: var(--section-py) 0;
+      background: var(--ivory);
+    }
+    .testimonials .container {
+      position: relative;
+    }
+    .testimonials-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 28px;
+      margin-top: 56px;
+    }
+    .testi-card {
+      background: var(--white);
+      border: 1px solid var(--petal);
+      border-radius: var(--radius-card);
+      padding: 36px 32px;
+      box-shadow: var(--shadow-1);
+      transition: transform .3s ease, box-shadow .3s ease;
+    }
+    .testi-card:hover {
+      transform: translateY(-4px);
+      box-shadow: var(--shadow-2);
+    }
+    .stars {
+      display: flex;
+      gap: 4px;
+      margin-bottom: 20px;
+    }
+    .star {
+      color: var(--warm-gold);
+      font-size: 16px;
+    }
+    .testi-quote {
+      font-family: var(--font-display);
+      font-size: 20px;
+      font-weight: 400;
+      font-style: italic;
+      color: var(--charcoal);
+      line-height: 1.55;
+      margin-bottom: 28px;
+    }
+    .testi-client {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+    }
+    .client-avatar {
+      width: 46px;
+      height: 46px;
+      border-radius: 50%;
+      overflow: hidden;
+      flex-shrink: 0;
+      border: 2px solid var(--petal);
+    }
+    .client-avatar img { height: 100%; }
+    .client-name {
+      font-weight: 600;
+      font-size: 14px;
+      color: var(--charcoal);
+    }
+    .client-sub {
+      font-size: 12px;
+      color: var(--warm-gray);
+      margin-top: 2px;
+    }
+
+    /* ═══════════════════════════════════════════════════════════════
+       GALLERY
+    ═══════════════════════════════════════════════════════════════ */
+    .gallery {
+      padding: var(--section-py) 0 0;
+      background: var(--ivory);
+    }
+    .gallery-header { margin-bottom: 48px; }
+    .gallery-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      grid-template-rows: repeat(2, 260px);
+      gap: 12px;
+    }
+    .gallery-item {
+      border-radius: var(--radius-img);
+      overflow: hidden;
+      position: relative;
+      cursor: pointer;
+    }
+    .gallery-item img {
+      height: 100%;
+      transition: transform .6s cubic-bezier(.16,1,.3,1);
+    }
+    .gallery-item::after {
+      content: '+';
+      position: absolute;
+      inset: 0;
+      background: rgba(42,32,32,.35);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-family: var(--font-display);
+      font-size: 40px;
+      color: var(--white);
+      opacity: 0;
+      transition: opacity .3s ease;
+    }
+    .gallery-item:hover img { transform: scale(1.07); }
+    .gallery-item:hover::after { opacity: 1; }
+
+    /* ═══════════════════════════════════════════════════════════════
+       CTA BOOKING
+    ═══════════════════════════════════════════════════════════════ */
+    .booking-cta {
+      position: relative;
+      padding: 120px 0;
+      overflow: hidden;
+      text-align: center;
+    }
+    .booking-bg {
+      position: absolute;
+      inset: 0;
+      background: url('https://images.unsplash.com/photo-1560066984-138dadb4c035?w=1800&q=80&auto=format&fit=crop') center/cover;
+    }
+    .booking-bg::after {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: rgba(42,32,32,.68);
+    }
+    .booking-content {
+      position: relative;
+      z-index: 1;
+    }
+    .booking-label {
+      display: block;
+      font-size: 12px;
+      font-weight: 600;
+      letter-spacing: .18em;
+      text-transform: uppercase;
+      color: var(--brand-rose);
+      margin-bottom: 18px;
+    }
+    .booking-title {
+      font-family: var(--font-display);
+      font-size: clamp(40px, 5vw, 62px);
+      font-weight: 300;
+      font-style: italic;
+      color: var(--white);
+      line-height: 1.15;
+      margin-bottom: 20px;
+    }
+    .booking-sub {
+      font-size: 16px;
+      color: rgba(255,255,255,.7);
+      margin-bottom: 44px;
+    }
+    .booking-actions {
+      display: flex;
+      gap: 16px;
+      justify-content: center;
+      flex-wrap: wrap;
+    }
+
+    /* ═══════════════════════════════════════════════════════════════
+       FOOTER
+    ═══════════════════════════════════════════════════════════════ */
+    .footer {
+      background: var(--charcoal);
+      padding: 72px 0 0;
+    }
+    .footer-top {
+      display: grid;
+      grid-template-columns: 1.4fr 1fr 1fr 1fr;
+      gap: 48px;
+      padding-bottom: 56px;
+      border-bottom: 1px solid rgba(237,216,212,.12);
+    }
+    .footer-brand .footer-logo {
+      font-family: var(--font-display);
+      font-size: 28px;
+      font-weight: 400;
+      color: var(--white);
+      margin-bottom: 14px;
+    }
+    .footer-brand .footer-logo span { color: var(--brand-rose); }
+    .footer-tagline {
+      font-size: 14px;
+      color: rgba(255,255,255,.45);
+      line-height: 1.65;
+      max-width: 220px;
+      margin-bottom: 24px;
+    }
+    .social-links {
+      display: flex;
+      gap: 12px;
+    }
+    .social-link {
+      width: 38px;
+      height: 38px;
+      border-radius: 10px;
+      border: 1px solid rgba(237,216,212,.2);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: rgba(255,255,255,.55);
+      font-size: 16px;
+      transition: background .2s ease, color .2s ease, border-color .2s ease;
+    }
+    .social-link:hover {
+      background: var(--brand-rose);
+      color: var(--white);
+      border-color: var(--brand-rose);
+    }
+    .footer-col h4 {
+      font-size: 13px;
+      font-weight: 600;
+      letter-spacing: .1em;
+      text-transform: uppercase;
+      color: rgba(255,255,255,.35);
+      margin-bottom: 18px;
+    }
+    .footer-col ul li {
+      margin-bottom: 10px;
+    }
+    .footer-col ul li a {
+      font-size: 14px;
+      color: rgba(255,255,255,.6);
+      transition: color .2s ease;
+    }
+    .footer-col ul li a:hover { color: var(--white); }
+    .footer-col .contact-item {
+      display: flex;
+      align-items: flex-start;
+      gap: 10px;
+      margin-bottom: 12px;
+    }
+    .footer-col .contact-icon { color: var(--brand-rose); font-size: 14px; margin-top: 2px; }
+    .footer-col .contact-text {
+      font-size: 14px;
+      color: rgba(255,255,255,.6);
+      line-height: 1.5;
+    }
+    .footer-bottom {
+      padding: 22px 32px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      max-width: var(--max-w);
+      margin: 0 auto;
+    }
+    .footer-copyright {
+      font-size: 13px;
+      color: rgba(255,255,255,.3);
+    }
+    .footer-legal {
+      display: flex;
+      gap: 24px;
+    }
+    .footer-legal a {
+      font-size: 13px;
+      color: rgba(255,255,255,.3);
+      transition: color .2s ease;
+    }
+    .footer-legal a:hover { color: rgba(255,255,255,.7); }
+  </style>
+</head>
+<body>
+
+  <!-- ══════════════════════════════════
+       NAVIGATION
+  ══════════════════════════════════ -->
+  <nav class="nav" id="nav">
+    <div class="nav-inner">
+      <a href="#" class="nav-logo">Lumi<span>è</span>re</a>
+      <ul class="nav-links">
+        <li><a href="#services">Služby</a></li>
+        <li><a href="#about">O nás</a></li>
+        <li><a href="#gallery">Galerie</a></li>
+        <li><a href="#contact">Kontakt</a></li>
+      </ul>
+      <a href="#booking" class="btn btn-primary" style="font-size:14px;padding:12px 26px;">Rezervovat termín</a>
+    </div>
+  </nav>
+
+  <!-- ══════════════════════════════════
+       HERO
+  ══════════════════════════════════ -->
+  <section class="hero">
+    <div class="hero-content container" style="max-width:none;padding-left:max(32px,calc((100vw - 1200px)/2 + 32px))">
+      <div class="hero-tag">
+        <span class="hero-tag-dot"></span>
+        Prémiový salón krásy — Praha
+      </div>
+      <h1 class="hero-headline">
+        Krása,<br>která <em>promlouvá</em>
+      </h1>
+      <p class="hero-sub">
+        Prémiový salón krásy v srdci města.<br>
+        Péče na míru, která vás rozmazlí od prvního okamžiku.
+      </p>
+      <div class="hero-actions">
+        <a href="#booking" class="btn btn-primary btn-pulse">Rezervovat termín</a>
+        <a href="#services" class="btn btn-outline">Prohlédnout služby</a>
+      </div>
+    </div>
+
+    <div class="hero-image-wrap hero-img-animate">
+      <img
+        src="https://images.unsplash.com/photo-1487412947147-5cebf100ffc2?w=900&q=85&auto=format&fit=crop&crop=top"
+        alt="Lumière Beauty Salon"
+        loading="eager"
+      />
+      <div class="hero-image-badge">
+        <div class="badge-number">★ 4.9</div>
+        <div class="badge-label">Hodnocení klientek</div>
+      </div>
+    </div>
+
+    <div class="hero-scroll-hint">
+      <div class="scroll-line"></div>
+      <span class="scroll-label">Scroll</span>
+    </div>
+  </section>
+
+  <!-- ══════════════════════════════════
+       TRUST STRIP
+  ══════════════════════════════════ -->
+  <div class="trust">
+    <div class="trust-grid">
+      <div class="trust-item reveal">
+        <div class="trust-number">12<span>+</span></div>
+        <div class="trust-label">let zkušeností</div>
+      </div>
+      <div class="trust-item reveal delay-2">
+        <div class="trust-number">3<span>,</span>200<span>+</span></div>
+        <div class="trust-label">spokojených klientek</div>
+      </div>
+      <div class="trust-item reveal delay-4">
+        <div class="trust-number">18</div>
+        <div class="trust-label">ocenění za kvalitu</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══════════════════════════════════
+       SERVICES
+  ══════════════════════════════════ -->
+  <section class="services" id="services">
+    <div class="container">
+      <div class="services-header section-header-centered">
+        <div class="gold-divider reveal">
+          <span class="gold-divider-icon">✦</span>
+        </div>
+        <span class="section-label reveal delay-1">Naše péče</span>
+        <h2 class="section-title reveal delay-2">Co pro vás děláme</h2>
+        <p class="section-desc reveal delay-3">
+          Každá služba je navržena tak, aby vám přinesla nejen krásný výsledek,
+          ale také hluboký pocit pohody a regenerace.
+        </p>
+      </div>
+
+      <div class="services-grid">
+        <div class="service-card reveal delay-1">
+          <div class="card-img">
+            <img src="https://images.unsplash.com/photo-1562322140-8baeececf3df?w=600&q=80&auto=format&fit=crop" alt="Kadeřnictví" loading="lazy" />
+          </div>
+          <div class="card-body">
+            <span class="card-tag">Vlasy</span>
+            <h3 class="card-title">Kadeřnické služby</h3>
+            <p class="card-desc">Střihy, barvení, melíry a luxusní ošetření vlasů prémiovou kosmetikou L'Oréal Professionnel.</p>
+            <div class="card-footer">
+              <div class="card-price">
+                <small>cena od</small>
+                650 Kč
+              </div>
+              <a href="#" class="card-link">Zjistit více →</a>
+            </div>
+          </div>
+        </div>
+
+        <div class="service-card reveal delay-2">
+          <div class="card-img">
+            <img src="https://images.unsplash.com/photo-1604654894610-df63bc536371?w=600&q=80&auto=format&fit=crop" alt="Manikúra" loading="lazy" />
+          </div>
+          <div class="card-body">
+            <span class="card-tag">Nehty</span>
+            <h3 class="card-title">Manikúra & Pedikúra</h3>
+            <p class="card-desc">Klasická i gelová manikúra, nail art, pedikúra a ošetřující kúry pro dokonalé nehty a pokožku.</p>
+            <div class="card-footer">
+              <div class="card-price">
+                <small>cena od</small>
+                390 Kč
+              </div>
+              <a href="#" class="card-link">Zjistit více →</a>
+            </div>
+          </div>
+        </div>
+
+        <div class="service-card reveal delay-3">
+          <div class="card-img">
+            <img src="https://images.unsplash.com/photo-1570172619644-dfd03ed5d881?w=600&q=80&auto=format&fit=crop" alt="Kosmetika" loading="lazy" />
+          </div>
+          <div class="card-body">
+            <span class="card-tag">Pleť</span>
+            <h3 class="card-title">Kosmetická ošetření</h3>
+            <p class="card-desc">Hloubkové čištění pleti, chemické peelingy, lifting a hydratační rituály pro zářivou pokožku.</p>
+            <div class="card-footer">
+              <div class="card-price">
+                <small>cena od</small>
+                890 Kč
+              </div>
+              <a href="#" class="card-link">Zjistit více →</a>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ══════════════════════════════════
+       ABOUT
+  ══════════════════════════════════ -->
+  <section class="about" id="about">
+    <div class="container">
+      <div class="about-grid">
+        <div class="about-img-wrap reveal">
+          <img src="https://images.unsplash.com/photo-1521590832167-7bcbfaa6381f?w=800&q=80&auto=format&fit=crop" alt="Lumière salon interior" loading="lazy" />
+          <div class="about-badge">
+            <div class="big">2012</div>
+            <div class="small">Rok vzniku</div>
+          </div>
+        </div>
+        <div class="reveal-right">
+          <span class="section-label">Náš příběh</span>
+          <h2 class="section-title" style="max-width:420px;">Místo, kde se cítíte krásně</h2>
+          <p style="font-size:16px;color:var(--warm-gray);line-height:1.75;margin-top:18px;">
+            Lumière byl založen s jednoduchou vizí: vytvořit salón, kde se každá klientka cítí jako vzácný host. Naši stylisté a kosmetičky se pravidelně vzdělávají na mezinárodních školeních.
+          </p>
+          <p style="font-size:16px;color:var(--warm-gray);line-height:1.75;margin-top:14px;margin-bottom:0;">
+            Používáme výhradně certifikované prémiové produkty šetrné k pleti i vlasům, protože věříme, že skutečná krása neznamená kompromisy.
+          </p>
+
+          <div class="about-values">
+            <div class="value-row">
+              <div class="value-icon">🌸</div>
+              <div class="value-text">
+                <strong>Personalizovaná péče</strong>
+                <span>Každé ošetření je přizpůsobeno přesně vašim potřebám a přáním.</span>
+              </div>
+            </div>
+            <div class="value-row">
+              <div class="value-icon">✨</div>
+              <div class="value-text">
+                <strong>Prémiové produkty</strong>
+                <span>Spolupracujeme jen s těmi nejlepšími značkami — L'Oréal, ELEMIS, OPI.</span>
+              </div>
+            </div>
+            <div class="value-row">
+              <div class="value-icon">🍃</div>
+              <div class="value-text">
+                <strong>Relaxační atmosféra</strong>
+                <span>Navrhli jsme prostory tak, aby každá návštěva byla malou dovoleno.</span>
+              </div>
+            </div>
+          </div>
+
+          <a href="#" class="btn btn-outline">Více o nás</a>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ══════════════════════════════════
+       TESTIMONIALS
+  ══════════════════════════════════ -->
+  <section class="testimonials" id="testimonials">
+    <div class="container">
+      <div class="section-header-centered">
+        <div class="gold-divider reveal">
+          <span class="gold-divider-icon">✦</span>
+        </div>
+        <span class="section-label reveal delay-1">Reference</span>
+        <h2 class="section-title reveal delay-2">Co říkají naše klientky</h2>
+      </div>
+
+      <div class="testimonials-grid">
+        <div class="testi-card reveal delay-1">
+          <div class="stars">★★★★★</div>
+          <p class="testi-quote">„Lumière je moje nejoblíbenější místo v Praze. Každá návštěva je zážitek — odcházím krásná, uvolněná a plná energie."</p>
+          <div class="testi-client">
+            <div class="client-avatar">
+              <img src="https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=100&q=80&auto=format&fit=crop&crop=face" alt="Klára" loading="lazy" />
+            </div>
+            <div>
+              <div class="client-name">Klára Novotná</div>
+              <div class="client-sub">Stálá klientka od 2018</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="testi-card reveal delay-2">
+          <div class="stars">★★★★★</div>
+          <p class="testi-quote">„Naprosto profesionální přístup a výsledky, které překonaly má očekávání. Moje vlasy jsou po každé návštěvě v perfektním stavu."</p>
+          <div class="testi-client">
+            <div class="client-avatar">
+              <img src="https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=100&q=80&auto=format&fit=crop&crop=face" alt="Markéta" loading="lazy" />
+            </div>
+            <div>
+              <div class="client-name">Markéta Horáková</div>
+              <div class="client-sub">Klientka od 2020</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="testi-card reveal delay-3">
+          <div class="stars">★★★★★</div>
+          <p class="testi-quote">„Kosmetické ošetření bylo naprosté zjevení. Pleť mám hydratovanou, vypnutou a zářivou. Určitě se vrátím!"</p>
+          <div class="testi-client">
+            <div class="client-avatar">
+              <img src="https://images.unsplash.com/photo-1544005313-94ddf0286df2?w=100&q=80&auto=format&fit=crop&crop=face" alt="Jana" loading="lazy" />
+            </div>
+            <div>
+              <div class="client-name">Jana Procházková</div>
+              <div class="client-sub">Klientka od 2022</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ══════════════════════════════════
+       GALLERY
+  ══════════════════════════════════ -->
+  <section class="gallery" id="gallery">
+    <div class="container">
+      <div class="gallery-header section-header-centered">
+        <div class="gold-divider reveal"><span class="gold-divider-icon">✦</span></div>
+        <span class="section-label reveal delay-1">Naše práce</span>
+        <h2 class="section-title reveal delay-2">Galerie</h2>
+      </div>
+    </div>
+    <div style="padding:0 32px;max-width:var(--max-w);margin:0 auto;" class="reveal">
+      <div class="gallery-grid">
+        <div class="gallery-item">
+          <img src="https://images.unsplash.com/photo-1522337360788-8b13dee7a37e?w=500&q=80&auto=format&fit=crop" alt="Galerie 1" loading="lazy" />
+        </div>
+        <div class="gallery-item">
+          <img src="https://images.unsplash.com/photo-1560066984-138dadb4c035?w=500&q=80&auto=format&fit=crop" alt="Galerie 2" loading="lazy" />
+        </div>
+        <div class="gallery-item">
+          <img src="https://images.unsplash.com/photo-1610992015762-f81e5f8a0f5b?w=500&q=80&auto=format&fit=crop" alt="Galerie 3" loading="lazy" />
+        </div>
+        <div class="gallery-item">
+          <img src="https://images.unsplash.com/photo-1516975080664-ed2fc6a32937?w=500&q=80&auto=format&fit=crop" alt="Galerie 4" loading="lazy" />
+        </div>
+        <div class="gallery-item">
+          <img src="https://images.unsplash.com/photo-1585747860715-2ba37e788b70?w=500&q=80&auto=format&fit=crop" alt="Galerie 5" loading="lazy" />
+        </div>
+        <div class="gallery-item">
+          <img src="https://images.unsplash.com/photo-1457972729786-0411a3b2b626?w=500&q=80&auto=format&fit=crop" alt="Galerie 6" loading="lazy" />
+        </div>
+        <div class="gallery-item">
+          <img src="https://images.unsplash.com/photo-1487412947147-5cebf100ffc2?w=500&q=80&auto=format&fit=crop" alt="Galerie 7" loading="lazy" />
+        </div>
+        <div class="gallery-item">
+          <img src="https://images.unsplash.com/photo-1581182800629-7d90925ad072?w=500&q=80&auto=format&fit=crop" alt="Galerie 8" loading="lazy" />
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ══════════════════════════════════
+       BOOKING CTA
+  ══════════════════════════════════ -->
+  <section class="booking-cta" id="booking">
+    <div class="booking-bg"></div>
+    <div class="booking-content container">
+      <span class="booking-label reveal">Rezervace online</span>
+      <h2 class="booking-title reveal delay-1">Připraveny přijít?</h2>
+      <p class="booking-sub reveal delay-2">Rezervujte si termín online — jednoduše, rychle a bez čekání.</p>
+      <div class="booking-actions reveal delay-3">
+        <a href="#" class="btn btn-primary btn-pulse" style="font-size:16px;padding:16px 40px;">Rezervovat nyní</a>
+        <a href="tel:+420123456789" class="btn btn-outline-light">📞 Zavolat nám</a>
+      </div>
+    </div>
+  </section>
+
+  <!-- ══════════════════════════════════
+       FOOTER
+  ══════════════════════════════════ -->
+  <footer class="footer" id="contact">
+    <div class="container">
+      <div class="footer-top">
+        <div class="footer-brand">
+          <div class="footer-logo">Lumi<span>è</span>re</div>
+          <p class="footer-tagline">Prémiový salón krásy v srdci Prahy. Vaše krása je naše vášeň.</p>
+          <div class="social-links">
+            <a href="#" class="social-link" aria-label="Instagram">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="2" width="20" height="20" rx="5" ry="5"/><path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"/><line x1="17.5" y1="6.5" x2="17.51" y2="6.5"/></svg>
+            </a>
+            <a href="#" class="social-link" aria-label="Facebook">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 2h-3a5 5 0 0 0-5 5v3H7v4h3v8h4v-8h3l1-4h-4V7a1 1 0 0 1 1-1h3z"/></svg>
+            </a>
+            <a href="#" class="social-link" aria-label="Pinterest">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2C6.477 2 2 6.477 2 12c0 4.236 2.636 7.855 6.356 9.312-.088-.791-.167-2.005.035-2.868.181-.78 1.172-4.97 1.172-4.97s-.299-.598-.299-1.482c0-1.388.806-2.428 1.808-2.428.853 0 1.266.641 1.266 1.408 0 .858-.546 2.141-.828 3.33-.236.995.499 1.806 1.476 1.806 1.772 0 3.137-1.867 3.137-4.564 0-2.387-1.715-4.056-4.161-4.056-2.834 0-4.495 2.126-4.495 4.322 0 .856.33 1.772.741 2.273a.3.3 0 0 1 .069.285c-.076.311-.243.995-.276 1.134-.044.183-.145.222-.334.134-1.249-.581-2.03-2.407-2.03-3.874 0-3.154 2.292-6.052 6.608-6.052 3.469 0 6.165 2.473 6.165 5.776 0 3.447-2.173 6.22-5.19 6.22-1.013 0-1.967-.527-2.292-1.148l-.623 2.378c-.226.869-.835 1.958-1.244 2.621.937.29 1.931.446 2.962.446 5.522 0 10-4.477 10-10S17.522 2 12 2z"/></svg>
+            </a>
+          </div>
+        </div>
+
+        <div class="footer-col">
+          <h4>Navigace</h4>
+          <ul>
+            <li><a href="#services">Služby</a></li>
+            <li><a href="#about">O nás</a></li>
+            <li><a href="#gallery">Galerie</a></li>
+            <li><a href="#testimonials">Reference</a></li>
+            <li><a href="#booking">Rezervace</a></li>
+          </ul>
+        </div>
+
+        <div class="footer-col">
+          <h4>Služby</h4>
+          <ul>
+            <li><a href="#">Kadeřnictví</a></li>
+            <li><a href="#">Manikúra & Pedikúra</a></li>
+            <li><a href="#">Kosmetika</a></li>
+            <li><a href="#">Masáže</a></li>
+            <li><a href="#">Dárkové poukazy</a></li>
+          </ul>
+        </div>
+
+        <div class="footer-col" id="contact-info">
+          <h4>Kontakt</h4>
+          <div class="contact-item">
+            <span class="contact-icon">📍</span>
+            <span class="contact-text">Pařížská 12<br>110 00 Praha 1</span>
+          </div>
+          <div class="contact-item">
+            <span class="contact-icon">📞</span>
+            <span class="contact-text">+420 123 456 789</span>
+          </div>
+          <div class="contact-item">
+            <span class="contact-icon">✉️</span>
+            <span class="contact-text">hello@lumiere-salon.cz</span>
+          </div>
+          <div class="contact-item">
+            <span class="contact-icon">🕐</span>
+            <span class="contact-text">Po–Pá: 9:00–20:00<br>So: 9:00–17:00</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="footer-bottom">
+        <span class="footer-copyright">© 2026 Lumière Beauty Salon. Všechna práva vyhrazena.</span>
+        <div class="footer-legal">
+          <a href="#">Ochrana osobních údajů</a>
+          <a href="#">Podmínky použití</a>
+        </div>
+      </div>
+    </div>
+  </footer>
+
+  <script>
+    // ── Sticky nav ──────────────────────────────────────────
+    const nav = document.getElementById('nav');
+    window.addEventListener('scroll', () => {
+      nav.classList.toggle('scrolled', window.scrollY > 40);
+    }, { passive: true });
+
+    // ── Scroll-reveal (Intersection Observer) ───────────────
+    // Mirrors the 21st-dev AnimatedGroup stagger pattern
+    const revealEls = document.querySelectorAll('.reveal, .reveal-right');
+    const observer = new IntersectionObserver((entries) => {
+      entries.forEach(entry => {
+        if (entry.isIntersecting) {
+          entry.target.classList.add('visible');
+          observer.unobserve(entry.target);
+        }
+      });
+    }, { threshold: 0.12, rootMargin: '0px 0px -40px 0px' });
+
+    revealEls.forEach(el => observer.observe(el));
+
+    // ── Smooth hero parallax on scroll ──────────────────────
+    const heroImg = document.querySelector('.hero-image-wrap img');
+    window.addEventListener('scroll', () => {
+      if (window.scrollY < window.innerHeight) {
+        heroImg.style.transform = `scale(1.04) translateY(${window.scrollY * 0.18}px)`;
+      }
+    }, { passive: true });
+  </script>
+</body>
+</html>
